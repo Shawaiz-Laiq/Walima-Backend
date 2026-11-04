@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 
 const express = require("express");
@@ -7,33 +8,60 @@ const helmet = require("helmet");
 const connectDB = require("./config/dp");
 const rsvpRoutes = require("./routes/rsvp");
 const adminRoutes = require("./routes/admin");
+
 const app = express();
-
-
-
-
-
-// Database connection
-connectDB();
 
 // Middleware
 app.use(helmet());
 
+app.use(cors({
+    origin: [
+        "https://ahmedwedding-two.vercel.app",
+        "https://ahmedwedding-git-main-shawaiz2.vercel.app",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-app.use(cors());
 app.use(express.json());
+
+// Wait for MongoDB before processing API requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error("Database Middleware Error:", error.message);
+
+        res.status(503).json({
+            success: false,
+            message: "Database connection failed"
+        });
+    }
+});
+
+// Routes
 app.use("/api/rsvp", rsvpRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Test route
 app.get("/", (req, res) => {
-    res.send("Walima Guest Management API is running!");
+    res.json({
+        success: true,
+        message: "Walima Guest Management API is running!"
+    });
 });
 
-// Routes will be added here
+// Local development
+if (require.main === module) {
+    const PORT = process.env.PORT || 5001;
 
-const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Export Express app for Vercel
+module.exports = app;
