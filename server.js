@@ -14,15 +14,23 @@ const app = express();
 // Middleware
 app.use(helmet());
 
+
+const allowedOrigins = [
+    "https://wedding-five-azure-82.vercel.app",
+    "http://localhost:5500"
+];
+
 app.use(cors({
-    origin: [
-        "https://ahmedwedding-two.vercel.app",
-        "https://ahmedwedding-git-main-shawaiz2.vercel.app",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500"
-    ],
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS: " + origin));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }));
 
 app.use(express.json());
