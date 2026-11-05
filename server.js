@@ -19,7 +19,8 @@ const allowedOrigins = [
     "https://wedding-five-azure-82.vercel.app",
     "http://localhost:5500",
     "http://127.0.0.1:5500",
-    "https://wedcard1-eosin.vercel.app"
+    "https://wedcard1-eosin.vercel.app",
+    "https://admin-gray-three-94.vercel.app"
 ];
 
 app.use(cors({
